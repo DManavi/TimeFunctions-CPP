@@ -2,7 +2,14 @@
 //
 
 #include "stdafx.h"
-#include "stdio.h"
+#include <iostream>
+using namespace std;
+
+struct time {
+	int hour;
+	int minute;
+	int second;
+};
 
 class TimeClass {
 
@@ -12,216 +19,339 @@ private:
 	int _minute; // current minute of the day
 	int _second; // current second of the day
 
-	void normalize_time(int* hour, int* minute, int* second) {
+	time normalize_time(time input) {
 
 		// divide by 60 e.g. 75(s) / 60 = 1(int)
-		int next = *second / 60;
+		int next = input.second / 60;
 
 		// get divide remaining and set as current second
-		*second = *second % 60;
+		input.second = input.second % 60;
 
 		// add calculated minutes to the time minute
-		*minute += next;
+		input.minute += next;
+
 
 		// divide by 60 e.g. 75(m) / 60 = 1(int)
-		next = *minute / 60;
+		next = input.minute / 60;
 
 		// get divide remaining and set as current minute
-		*minute = *minute % 60;
+		input.minute = input.minute % 60;
+
 
 		// add extra hours to current hour
-		*hour += next;
+		input.hour += next;
 
 		// normalize hour
-		*hour = *hour % 24;
+		input.hour = input.hour % 24;
+
+		// return normalized value to the caller
+		return input;
 	}
 
 public:
 
-	void set_time(int hour, int minute, int second) {
+	TimeClass() {
+
+		// reset hour
+		_hour = 0;
+
+		// reset minute
+		_minute = 0;
+
+		// reset second
+		_second = 0;
+
+		// set default time
+		set_time(0, 0, 0);
+	}
+
+	TimeClass(int hour, int minute, int second) {
+
+		// set time on construction
+		set_time(hour, minute, second);
+	}
+
+	TimeClass(time t) {
+
+		// set time on construction
+		set_time(t);
+	}
+
+	void set_time(time t) {
 
 		// normalize input time
-		normalize_time(&hour, &minute, &second);
+		t = normalize_time(t);
 
 		// assign hour
-		_hour = hour;
+		_hour = t.hour;
 
 		// assign minute
-		_minute = minute;
+		_minute = t.minute;
 
 		// assign second
-		_second = second;
+		_second = t.second;
 	}
 
-	void get_time(int* hour, int* minute, int* second) {
+	void set_time(int hour, int minute, int second) {
 
-		scanf_s("%d:%d:%d", hour, minute, second);
+		// create new time variable
+		time t;
 
-		getchar();
+		// assign hour
+		t.hour = hour;
+
+		// assign minute
+		t.minute = minute;
+
+		// assign second
+		t.second = second;
+
+		// call set_time with time struct
+		set_time(t);
 	}
 
-	void subtract(int h1, int m1, int s1, int h2, int m2, int s2, int* hour, int* minute, int* second) {
+	time get_time() {
+
+		// create output variable
+		time output;
+
+		cout << "Hour: ";
+
+		// get hour
+		cin >> output.hour;
+
+		cout << "Minute: ";
+
+		// get minute
+		cin >> output.minute;
+
+		cout << "Second: ";
+
+		// get second
+		cin >> output.second;
+
+		// return output to caller
+		return output;
+	}
+
+	time subtract(time t1, time t2) {
+
+		// create output variable
+		time output;
 
 		// subtract hours
-		*hour = h2 - h1;
+		output.hour = t2.hour - t1.hour;
 
 		// subtract minutes
-		*minute = m2 - m1;
+		output.minute = t2.minute - t1.minute;
 
 		// subtract seconds
-		*second = s2 - s1;
+		output.second = t2.second - t1.second;
 
-		while (*hour < 0 || *minute < 0 || *second < 0) {
+		while (output.hour < 0 || output.minute < 0 || output.second < 0) {
 
 			// if hour is negative
-			if (*hour < 0) {
+			if (output.hour < 0) {
 
 				// fix negative hour
-				*hour += 24;
+				output.hour += 24;
 			}
 
-			if (*minute < 0) {
+			if (output.minute < 0) {
 
 				// decrease hour
-				*hour -= 1;
+				output.hour -= 1;
 
 				// add 60 minutes to current minute
-				*minute += 60;
+				output.minute += 60;
 			}
 
-			if (*second < 0) {
+			if (output.second < 0) {
 
 				// decrease minute
-				*minute -= 1;
+				output.minute -= 1;
 
 				// add 60 seconds to current second
-				*second += 60;
+				output.second += 60;
 			}
 		}
+
+		// return output to caller
+		return output;
 	}
 
-	void add(int h1, int m1, int s1, int h2, int m2, int s2, int* hour, int* minute, int* second) {
+	time add(time t1, time t2) {
 
-		*hour = h1 + h2;
+		// create output variable
+		time output;
 
-		*minute = m1 + m2;
+		// add hours
+		output.hour = t1.hour + t2.hour;
 
-		*second = s1 + s2;
+		// add minutes
+		output.minute = t1.minute + t2.minute;
 
-		normalize_time(hour, minute, second);
+		// add seconds
+		output.second = t1.second + t2.second;
+
+		// normalize add result
+		output = normalize_time(output);
+
+		// return normalized time to the caller
+		return output;
 	}
 
 	void show_current_time() {
 
-		// 
-		show_time("Current system time is: %d:%d:%d\r\n", _hour, _minute, _second);
+		// show prompt
+		cout << "Current system time is: ";
+
+		// show time
+		show_time(_hour, _minute, _second);
 	}
 
-	void show_time(char* format, int hour, int minute, int second) {
+	void show_time(int hour, int minute, int second) {
 
-		// show prompt & current date/time
-		printf(format, hour, minute, second);
+		// print time
+		cout << hour << ":" << minute << ":" << second;
 	}
 };
 
 int main()
 {
 	// create new instance of time class
-	TimeClass time;
+	TimeClass timeEmpty;
 
-	// create time variables with their default values
-	int hour = 22, minute = 65, second = 80;
+	// create new instance of time class with integer params
+	TimeClass timeWithIntParams(22, 65, 80);
+
+	// create time
+	time t;
+
+	// set hour
+	t.hour = 22;
+
+	// set minute
+	t.minute = 65;
+
+	// set second
+	t.second = 80;
+
+	// create new instance of time class with time param
+	TimeClass timeWithTimeParam(t);
+
+	// show prompt
+	cout << "Time is" << "\r\n\r\n";
+
+	// show prompt
+	cout << "\r\n" << "time class with default time constructor" << "\r\n";
+
+	// show crrent time of the timeEmpty instance
+	timeEmpty.show_current_time();
+
+	// show prompt
+	cout << "\r\n" << "time class with int parameters" << "\r\n";
+
+	// show current time of the timeWithIntParams instance
+	timeWithIntParams.show_current_time();
+
+	// show prompt
+	cout << "\r\n" << "time class with time parameters" << "\r\n";
+
+	// show current time of the timeWithTimeParam instance
+	timeWithTimeParam.show_current_time();
 
 
 	// Set time from code-behind
 
 	// set current time
-	time.set_time(hour, minute, second);
+	timeEmpty.set_time(18, 35, 66);
 
-	printf("Time has been updated from code.\r\n");
+	// show prompt
+	cout << "\r\n" << "Time has been updated from code." << "\r\n\r\n" << "Time is: ";
 
 	// show current time
-	time.show_current_time();
+	timeEmpty.show_current_time();
 
 
 	// Get time from user input and update time
 
 	// show prompt
-	printf("Trying to get time from user.\r\n");
+	cout << "\r\n\r\n" << "Trying to get time from user.\r\n";
 
 	// show prompt
-	printf("Enter new time: ");
+	cout << "Enter new time: \r\n";
 
 	// get time from user
-	time.get_time(&hour, &minute, &second);
+	time userTime = timeEmpty.get_time();
 
 	// show user entered values
-	printf("User entered: %d:%d:%d\r\n", hour, minute, second);
+	cout << "\r\n" << "User entered: " << userTime.hour << ":" << userTime.minute << ":" << userTime.second;
 
 	// update time
-	time.set_time(hour, minute, second);
+	timeEmpty.set_time(userTime);
 
-	printf("Time has been updated by the user.\r\n");
+	cout << "\r\n" << "Time has been updated by the user. New time is: ";
 
 	// show updated time
-	time.show_current_time();
+	timeEmpty.show_current_time();
 
 
 
 	// Add two times
 
-	printf("Add two times\r\n");
+	cout << "\r\n\r\nAdd two times\r\n\r\n";
 
-	// create time variables
-	int h1 = 0, m1 = 0, s1 = 0, h2 = 0, m2 = 0, s2 = 0;
+	// shor prompt
+	cout << "Enter time 1: " << "\r\n";
 
-	int hr = 0, mr = 0, sr = 0;
+	// get time from user
+	time t1 = timeEmpty.get_time();
 
-	printf("Enter time 1: ");
+	// show prompt
+	cout << "Enter time 2: " << "\r\n";
 
-	// get first time from user input
-	time.get_time(&h1, &m1, &s1);
+	// get second time from user
+	time t2 = timeEmpty.get_time();
 
-	printf("Enter time 2: ");
-
-	// get first time from user input
-	time.get_time(&h2, &m2, &s2);
-
-	// add two times together
-	time.add(h1, m1, s1, h2, m2, s2, &hr, &mr, &sr);
+	// add two times
+	time tResult = timeEmpty.add(t1, t2);
 
 	// show add result
-	time.show_time("Add result: %d:%d:%d\r\n", hr, mr, sr);
-
+	cout << "\r\nAdd result: " << tResult.hour << ":" << tResult.minute << ":" << tResult.second;
 
 
 	// subtract two times
 
-	printf("Subtract two times\r\n");
+	cout << "\r\n\r\nSubtract two times\r\n\r\n";
 
-	printf("Enter time 1: ");
+	// shor prompt
+	cout << "Enter time 1: " << "\r\n";
 
-	// get first time from user input
-	time.get_time(&h1, &m1, &s1);
+	// get time from user
+	t1 = timeEmpty.get_time();
 
-	printf("Enter time 2: ");
+	// show prompt
+	cout << "Enter time 2: " << "\r\n";
 
-	// get first time from user input
-	time.get_time(&h2, &m2, &s2);
+	// get second time from user
+	t2 = timeEmpty.get_time();
 
-	// add two times together
-	time.subtract(h1, m1, s1, h2, m2, s2, &hr, &mr, &sr);
+	// subtract two times
+	tResult = timeEmpty.subtract(t1, t2);
 
 	// show add result
-	time.show_time("Subtract result: %d:%d:%d\r\n", hr, mr, sr);
+	cout << "\r\nSubtract result: " << tResult.hour << ":" << tResult.minute << ":" << tResult.second;
 
 
+
+	getchar();
 
 	// show exit prompt
-	printf("Press any key to exit...");
+	cout << "\r\nPress return to exit...";
 
 	// prevent auto close console window
-	getchar();
+	cin.ignore();
 
 	return 0;
 }
