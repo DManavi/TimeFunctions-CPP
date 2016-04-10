@@ -176,6 +176,9 @@ public:
 			}
 		}
 
+		// normalize time again
+		output = normalize_time(output);
+
 		// return output to caller
 		return output;
 	}
