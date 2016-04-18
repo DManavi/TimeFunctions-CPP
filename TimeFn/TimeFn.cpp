@@ -160,7 +160,7 @@ public:
 			if (output.minute < 0) {
 
 				// decrease hour
-				output.hour -= 1;
+				output.hour--;
 
 				// add 60 minutes to current minute
 				output.minute += 60;
@@ -169,7 +169,7 @@ public:
 			if (output.second < 0) {
 
 				// decrease minute
-				output.minute -= 1;
+				output.minute--;
 
 				// add 60 seconds to current second
 				output.second += 60;
