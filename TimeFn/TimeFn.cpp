@@ -204,6 +204,19 @@ public:
 		return output;
 	}
 
+	time current_time() {
+
+		time tOutput;
+
+		tOutput.hour = _hour;
+
+		tOutput.minute = _minute;
+
+		tOutput.second = _second;
+
+		return tOutput;
+	}
+
 	void show_current_time() {
 
 		// show prompt
@@ -217,6 +230,49 @@ public:
 
 		// print time
 		cout << hour << ":" << minute << ":" << second;
+	}
+
+	TimeClass operator+ (const TimeClass& other) {
+
+
+		// get time from current time
+		time t1 = current_time();
+
+		// get time from second timeClass
+		time t2;
+
+		t2.hour = other._hour;
+
+		t2.minute = other._minute;
+
+		t2.second = other._second;
+
+		// add times together
+		time tOutput = add(t1, t2);
+
+		// return output to caller
+		return TimeClass(tOutput);
+	}
+
+	TimeClass operator- (const TimeClass& other) {
+
+		// get time from current time
+		time t1 = current_time();
+
+		// get time from second timeClass
+		time t2;
+
+		t2.hour = other._hour;
+
+		t2.minute = other._minute;
+
+		t2.second = other._second;
+
+		// subtract times
+		time tOutput = subtract(t2, t1);
+
+		// return output to caller
+		return TimeClass(tOutput);
 	}
 };
 
@@ -323,6 +379,15 @@ int main()
 	// show add result
 	cout << "\r\nAdd result: " << tResult.hour << ":" << tResult.minute << ":" << tResult.second;
 
+	// create two time classes from t1 & t2
+	TimeClass timeClass1(t1), timeClass2(t2), operatorResult;
+
+	operatorResult = timeClass1 + timeClass2;
+
+	time operatorTime = operatorResult.current_time();
+
+	// show add result
+	cout << "\r\nAdd result (By operator): " << operatorTime.hour << ":" << operatorTime.minute << ":" << operatorTime.second;
 
 	// subtract two times
 
@@ -346,6 +411,16 @@ int main()
 	// show add result
 	cout << "\r\nSubtract result: " << tResult.hour << ":" << tResult.minute << ":" << tResult.second;
 
+	timeClass1 = TimeClass(t1);
+
+	timeClass2 = TimeClass(t2);
+
+	operatorResult = timeClass2 - timeClass1;
+
+	operatorTime = operatorResult.current_time();
+
+	// show add result
+	cout << "\r\nSubtract result (By operator): " << operatorTime.hour << ":" << operatorTime.minute << ":" << operatorTime.second;
 
 
 	getchar();
