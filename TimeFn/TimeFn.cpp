@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include <iostream>
+
 using namespace std;
 
 struct time {
@@ -37,12 +38,41 @@ private:
 		// get divide remaining and set as current minute
 		input.minute = input.minute % 60;
 
+		while (input.hour < 0 || input.minute < 0 || input.second < 0) {
 
-		// add extra hours to current hour
-		input.hour += next;
+			// add extra hours to current hour
+			input.hour += next;
 
-		// normalize hour
-		input.hour = input.hour % 24;
+			// normalize hour
+			input.hour = input.hour % 24;
+
+			// if second is negative
+			if (input.second < 0) {
+
+				// decrease minute
+				input.minute--;
+
+				// add 60 seconds to second
+				input.second += 60;
+			}
+
+			// if minute is negative
+			if (input.minute < 0) {
+
+				// decrease hour
+				input.hour--;
+
+				// add 60 minutes to input
+				input.minute += 60;
+			}
+
+			// if hour is negative
+			if (input.hour < 0) {
+
+				// add 24 hours to hour
+				input.hour += 24;
+			}
+		}
 
 		// return normalized value to the caller
 		return input;
@@ -232,6 +262,11 @@ public:
 		cout << hour << ":" << minute << ":" << second;
 	}
 
+	int total_seconds() {
+
+		return _hour * 3600 + _minute * 60 + _second;
+	}
+
 	TimeClass operator+ (const TimeClass& other) {
 
 
@@ -274,6 +309,110 @@ public:
 		// return output to caller
 		return TimeClass(tOutput);
 	}
+
+	TimeClass& operator++ () {
+
+		_second++;
+
+		set_time(_hour, _minute, _second);
+
+		return *this;
+	}
+
+	TimeClass operator++(int) {
+
+		TimeClass tmp(*this); // copy
+
+		operator++(); // pre-increment
+
+		return tmp;   // return old value
+	}
+
+	TimeClass& operator-- () {
+
+		_second--;
+
+		set_time(_hour, _minute, _second);
+
+		return *this;
+	}
+
+	TimeClass operator-- (int) {
+
+		TimeClass tmp(*this); // copy
+
+		operator--(); // pre-increment
+
+		return tmp;   // return old value
+	}
+
+	TimeClass& operator+ (int n) {
+
+		_second = _second + n;
+
+		set_time(_hour, _minute, _second);
+
+		return *this;
+	}
+
+	TimeClass& operator- (int n) {
+
+		_second = _second - n;
+
+		set_time(_hour, _minute, _second);
+
+		return *this;
+	}
+
+	bool operator< (TimeClass& rhs) {
+
+		int rhs_totalSeconds = rhs.total_seconds();
+
+		return this->total_seconds() < rhs_totalSeconds;
+	}
+
+	bool operator> (TimeClass& rhs) {
+
+		int rhs_totalSeconds = rhs.total_seconds();
+
+		return this->total_seconds() > rhs_totalSeconds;
+	}
+
+	bool operator<=(TimeClass& rhs) {
+		
+		int rhs_totalSeconds = rhs.total_seconds();
+		
+		int current_totalSeconds = this->total_seconds();
+
+		return current_totalSeconds < rhs_totalSeconds || current_totalSeconds == rhs_totalSeconds;
+	}
+
+	bool operator>=(TimeClass& rhs) {
+
+		int rhs_totalSeconds = rhs.total_seconds();
+
+		int current_totalSeconds = this->total_seconds();
+
+		return current_totalSeconds > rhs_totalSeconds || current_totalSeconds == rhs_totalSeconds;
+	}
+
+	bool operator==(TimeClass& rhs) {
+
+		int rhs_totalSeconds = rhs.total_seconds();
+
+		int current_totalSeconds = this->total_seconds();
+
+		return current_totalSeconds == rhs_totalSeconds;
+	}
+
+	bool operator!=(TimeClass& rhs) {
+
+		int rhs_totalSeconds = rhs.total_seconds();
+
+		int current_totalSeconds = this->total_seconds();
+
+		return current_totalSeconds != rhs_totalSeconds;
+	}
 };
 
 int main()
@@ -282,7 +421,7 @@ int main()
 	TimeClass timeEmpty;
 
 	// create new instance of time class with integer params
-	TimeClass timeWithIntParams(22, 65, 80);
+	TimeClass timeWithIntParams(22, 65, 59);
 
 	// create time
 	time t;
@@ -314,6 +453,40 @@ int main()
 	// show current time of the timeWithIntParams instance
 	timeWithIntParams.show_current_time();
 
+	cout << "\r\n" << "Time after increament is (postfix)" << "\r\n";
+
+	timeWithIntParams++;
+
+	// show current time of the timeWithIntParams instance
+	timeWithIntParams.show_current_time();
+
+	cout << "\r\n" << "Time after decreament is (postfix)" << "\r\n";
+
+	// decrease time
+	timeWithIntParams--;
+
+	// show current time of the timeWithIntParams instance
+	timeWithIntParams.show_current_time();
+
+
+	cout << "\r\n" << "Time after adding 5 seconds is" << "\r\n";
+
+	// add time with 5
+	timeWithIntParams = timeWithIntParams + 5;
+
+	// show current time after add
+	timeWithIntParams.show_current_time();
+
+
+	cout << "\r\n" << "Time after subtracting 5 seconds is" << "\r\n";
+
+	// add time with 5
+	timeWithIntParams = timeWithIntParams - 5;
+
+	// show current time after add
+	timeWithIntParams.show_current_time();
+
+
 	// show prompt
 	cout << "\r\n" << "time class with time parameters" << "\r\n";
 
@@ -331,7 +504,6 @@ int main()
 
 	// show current time
 	timeEmpty.show_current_time();
-
 
 	// Get time from user input and update time
 
@@ -354,7 +526,6 @@ int main()
 
 	// show updated time
 	timeEmpty.show_current_time();
-
 
 
 	// Add two times
@@ -422,6 +593,98 @@ int main()
 	// show add result
 	cout << "\r\nSubtract result (By operator): " << operatorTime.hour << ":" << operatorTime.minute << ":" << operatorTime.second;
 
+
+	// compare two times
+
+	cout << "\r\n\r\nCompare two times\r\n\r\n";
+
+	// shor prompt
+	cout << "Enter time 1: " << "\r\n";
+
+	// get time from user
+	t1 = timeEmpty.get_time();
+
+	// show prompt
+	cout << "Enter time 2: " << "\r\n";
+
+	t2 = timeEmpty.get_time();
+
+	// equality check
+	bool isEqual = timeClass1 == timeClass2;
+
+	// inequality check
+	bool inEqual = timeClass1 != timeClass2;
+
+	// is left side greater than right side
+	bool isLeftGtRight = timeClass1 > timeClass2;
+
+	// is left side greater than or equal right side
+	bool isLeftGtEqualRight = timeClass1 >= timeClass2;
+
+	// is left side less than right side
+	bool isLeftLtRight = timeClass1 < timeClass2;
+
+	// is left side less than or equal right side
+	bool isLeftLtEqualRight = timeClass1 <= timeClass2;
+
+	// show equality result
+	cout << "\r\nT1 == T2: ";
+
+	if (isEqual) {
+		cout << "true";
+	}
+	else {
+		cout << "false";
+	}
+
+	cout << "\r\nT1 != T2: ";
+
+	if (inEqual) {
+		cout << "true";
+	}
+	else {
+		cout << "false";
+	}
+
+	// show greater than result
+	cout << "\r\nT1 > T2: ";
+
+	if (isLeftGtRight) {
+		cout << "true";
+	}
+	else {
+		cout << "false";
+	}
+
+	// show greater than or equal result
+	cout << "\r\nT1 => T2: ";
+
+	if (isLeftGtEqualRight) {
+		cout << "true";
+	}
+	else {
+		cout << "false";
+	}
+
+	// show less than result
+	cout << "\r\nT1 < T2: ";
+
+	if (isLeftLtRight) {
+		cout << "true";
+	}
+	else {
+		cout << "false";
+	}
+
+	// show less than or equal result
+	cout << "\r\nT1 <= T2: ";
+
+	if (isLeftLtEqualRight) {
+		cout << "true";
+	}
+	else {
+		cout << "false";
+	}
 
 	getchar();
 
